@@ -1,0 +1,55 @@
+management:
+    endpoint:
+        health:
+            show-details: always
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    health:
+        circuitbreakers:
+            enabled: true
+resilience4j:
+    circuitbreaker:
+        instances:
+            question-service:
+                automaticTransitionFromOpenToHalfOpenEnabled: true
+                eventConsumerBufferSize: 10
+                failureRateThreshold: 50
+                minimumNumberOfCalls: 5
+                permittedNumberOfCallsInHalfOpenState: 3
+                registerHealthIndicator: true
+                slidingWindowSize: 10
+                slidingWindowType: COUNT_BASED
+                waitDurationInOpenState: 6s
+
+
+    retry:
+        instances:
+            question-service:
+                max-attempts: 3
+                wait-duration: 5s
+
+    ratelimiter:
+        instances:
+            quiz-rate-limiter:
+                limit-refresh-period: 10s
+                limit-for-period: 2
+                timeout-duration: 5s
+
+    timelimiter:
+        instances:
+            quiz-time-limiter:
+                limit-refresh-period: 10s
+                limit-for-period: 2
+                timeout-duration: 0s
+
+
+
+server:
+    port: 8081
+spring:
+    application:
+        name: quizService
+    config:
+        import: configserver:http://localhost:8085
